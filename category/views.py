@@ -22,11 +22,21 @@ from .models import Category
 #     return render(request,'category/index.html',context)
 
 def index(request):
-
+    request.session['price']=1000
+    request.session['m']="شهر مبارك"
     categories=Category.objects.all()
+    print(categories)
 
     context={
         'cat':categories
     }
 
-    return render(request,'category/index.html',context)
+    response= render(request,'category/index.html',context)
+    response.set_cookie(
+        key="user",
+        value="joud",
+        max_age=172800
+    )
+    return response
+
+
