@@ -22,8 +22,8 @@ from .models import Category
 #     return render(request,'category/index.html',context)
 
 def index(request):
-    request.session['price']=1000
-    request.session['m']="شهر مبارك"
+    # request.session['price']=1000
+    # request.session['m']="شهر مبارك"
     categories=Category.objects.all()
     print(categories)
 
