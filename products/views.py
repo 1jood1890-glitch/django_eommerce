@@ -1,48 +1,178 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import product
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from .forms import RegisterForm, LoginForm
 
-# دالة عرض قائمة المنتجات مع الفلترة والبحث
+# دالة عرض قائمة المنتجات مع الفلترة والبحث (كما هي)
 def list(request):
-    # جلب المعايير من الرابط (الفئة والبحث)
+  
     cat_id = request.GET.get("category_id")
+ 
     _search = request.GET.get("search")
-    
-    # جلب جميع المنتجات من قاعدة البيانات
+  
     products = product.objects.all()
     page_title = "استكشف منتجاتنا"
 
-    # الفلترة حسب القسم (تأكد أن الحقل في Models هو Category_id)
+
+
     if cat_id:
         products = products.filter(Category_id=cat_id)
         page_title = "منتجات القسم المختارة"
 
-    # الفلترة حسب كلمة البحث
+
     if _search:
         products = products.filter(name__icontains=_search)
         page_title = f"نتائج البحث عن: {_search}"
 
     context = {
-        "prod": products,   # يُستخدم في list.html
+        "prod": products,
         "title": page_title,
     }
     return render(request, 'products/list.html', context)
 
-# دالة عرض تفاصيل منتج معين بناءً على الرقم التعريفي (Primary Key)
+# دالة عرض تفاصيل منتج معين (كما هي)
 def product_details(request, pk):
-    # جلب المنتج أو إظهار صفحة 404 إذا كان المعرف غير صحيح
+ 
     single_product = get_object_or_404(product, id=pk)
     
     context = {
-        "product": single_product # تم تغييره لـ product ليطابق القالب الخاص بك
+        "product": single_product 
     }
     return render(request, "products/product_info.html", context)
 
-# دالة إضافة المنتج للسلة وتحديث العداد في الجلسة (Session)
-def add_to_cart(request):
-    # جلب القيمة الحالية للسلة أو البدء بـ 0
-    counter = request.session.get('cart_count', 0)
-    counter += 1
-    request.session['cart_count'] = counter
+# --- الدوال المعدلة لإدارة السلة والكميات ---
+
+def add_to_cart(request, pk):
+    # جلب السلة الحالية
+    cart = request.session.get('cart', {})
+    product_id = str(pk)
     
-    # البقاء في نفس الصفحة بعد الإضافة
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    # جلب نوع العملية (زيادة أو نقصان) من الرابط
+    action = request.GET.get('action') 
+
+    if product_id in cart:
+        if action == 'minus':
+            # تقليل الكمية
+            cart[product_id] -= 1
+            # حذف المنتج إذا وصلت الكمية لصفر
+            if cart[product_id] < 1:
+                del cart[product_id]
+        else:
+            # زيادة الكمية (الحالة الافتراضية)
+            cart[product_id] += 1
+    else:
+        
+        if action != 'minus':
+            cart[product_id] = 1
+        
+    
+    request.session['cart'] = cart
+    request.session['cart_count'] = sum(cart.values())
+    
+    # الرجوع لآخر صفحة كان فيها العميل
+    return redirect(request.META.get('HTTP_REFERER', 'cart_view'))
+
+def cart_view(request):
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total_price = 0
+    
+    for product_id, quantity in cart.items():
+        item = get_object_or_404(product, id=product_id)
+        item_total = item.price * quantity
+        total_price += item_total
+        
+        cart_items.append({
+            'product': item,
+            'quantity': quantity,
+            'total': item_total
+        })
+        
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price
+    }
+    return render(request, 'products/cart.html', context)
+
+def remove_from_cart(request, pk):
+    cart = request.session.get('cart', {})
+    product_id = str(pk)
+    if product_id in cart:
+        del cart[product_id]
+    request.session['cart'] = cart
+    request.session['cart_count'] = sum(cart.values())
+    return redirect('cart_view')
+
+def clear_cart(request):
+    if 'cart' in request.session:
+        del request.session['cart']
+        request.session['cart_count'] = 0
+    return redirect('cart_view')
+
+# --- دوال المصادقة (الحسابات) ---
+
+def auth_register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('list')
+    else:
+        form = RegisterForm()
+    return render(request, 'accounts/auth_register.html', {'form': form})
+
+def auth_login(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            # يوجه العميل لصفحة الشيك أوت إذا كان قادماً منها بفضل رابط 'next'
+            return redirect(request.GET.get('next', 'list'))
+    else:
+        form = LoginForm()
+    return render(request, 'accounts/auth_login.html', {'form': form})
+
+def auth_logout(request):
+    logout(request)
+    return redirect('list')
+
+# --- دالة إتمام الطلب (النسخة المدمجة والمصلحة) ---
+
+@login_required(login_url='login')
+def checkout_view(request):
+    cart = request.session.get('cart', {})
+    
+    # 1. إذا كانت السلة فارغة، رجعه لصفحة السلة
+    if not cart:
+        return redirect('cart_view')
+    
+    # 2. منطق استقبال الطلب عند الضغط على "تأكيد" (POST)
+    if request.method == 'POST':
+        # هنا مستقبلاً يتم حفظ بيانات العميل في قاعدة البيانات
+        # حالياً: سنقوم بتفريغ السلة وتوجيه المستخدم لصفحة النجاح
+        request.session['cart'] = {}
+        request.session['cart_count'] = 0
+        return render(request, 'products/success.html')
+
+    # 3. عرض بيانات السلة في صفحة الشيك أوت (GET)
+    cart_items = []
+    total_price = 0
+    for product_id, quantity in cart.items():
+        item = get_object_or_404(product, id=product_id)
+        item_total = item.price * quantity
+        total_price += item_total
+        cart_items.append({
+            'product': item,
+            'quantity': quantity,
+            'total': item_total
+        })
+        
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price
+    }
+    return render(request, 'products/checkout.html', context)

@@ -4,78 +4,105 @@
 
 {% block content %}
 <style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        --soft-bg: #f8f9fa;
+    }
+
     .category-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-gradient);
         color: white;
-        padding: 60px 0;
-        border-radius: 0 0 50px 50px;
-        margin-bottom: 50px;
+        padding: 80px 0;
+        border-radius: 0 0 100px 100px; /* انحناء أكبر وأجمل */
+        margin-bottom: 60px;
+        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.2);
     }
 
     .category-card {
-        border: none;
-        border-radius: 20px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 24px; /* زوايا أكثر نعومة */
+        transition: all 0.4s ease;
         background: #ffffff;
-        position: relative;
+        overflow: hidden;
     }
 
     .category-card:hover {
-        transform: translateY(-12px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+        transform: translateY(-15px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.1) !important;
+        border-color: #4361ee;
     }
 
     .category-icon-circle {
-        width: 70px;
-        height: 70px;
-        background: #f8f9fa;
-        border-radius: 15px; /* شكل مربع بزوايا ناعمة */
+        width: 80px;
+        height: 80px;
+        background: #eef2ff;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 20px;
-        font-size: 1.8rem;
-        color: #667eea;
-        transition: 0.3s;
+        margin: 0 auto 25px;
+        font-size: 2rem;
+        color: #4361ee;
+        transition: all 0.4s ease;
     }
 
     .category-card:hover .category-icon-circle {
-        background: #667eea;
+        background: var(--primary-gradient);
         color: white;
-        transform: rotate(10deg);
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* عداد المنتجات الصغير */
+    .product-count {
+        font-size: 0.8rem;
+        background: #f1f3f5;
+        padding: 4px 12px;
+        border-radius: 50px;
+        color: #6c757d;
+        display: inline-block;
+        margin-bottom: 15px;
     }
 
     .btn-custom {
-        border-radius: 12px;
+        border-radius: 15px;
         font-weight: 600;
-        padding: 10px 20px;
+        padding: 12px 20px;
+        background: var(--primary-gradient);
+        border: none;
+        transition: 0.3s;
+    }
+
+    .btn-custom:hover {
+        box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        opacity: 0.9;
     }
 </style>
 
 <div class="category-header text-center">
-    <h1 class="display-4 fw-bold">استكشف أقسامنا</h1>
-    <p class="lead opacity-75">تصفح المنتجات حسب الفئة المختارة</p>
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">تسوق حسب الفئة</h1>
+        <p class="lead opacity-75 mx-auto" style="max-width: 600px;">نقدم لك تشكيلة واسعة من المنتجات المختارة بعناية لتناسب جميع احتياجاتك</p>
+    </div>
 </div>
-    <!-- <h1 class="text-center ">{{request.session.m}}</h1> -->
-     <!-- <h1 class="text-center ">{{request.session.price}}</h1>
-      <h1 class="text-center ">{{request.session.value}}</h1> -->
-     <!-- <h1 class="text-center ">{{request.COOKIES.user}}</h1> -->
-<div class="container">
+
+<div class="container mb-5">
     <div class="row g-4 justify-content-center">
         {% for category in cat %}
-        <div class="col-md-4 col-lg-3">
+        <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card category-card shadow-sm p-4 text-center h-100">
-                <div class="category-icon-circle shadow-sm">
+                <div class="category-icon-circle">
                     <span class="fw-bold">{{ category.name|slice:":1" }}</span> 
                 </div>
                 
+                <div class="product-count">قسم {{ category.name }}</div>
+                
                 <h4 class="card-title fw-bold mb-3 text-dark">{{ category.name }}</h4>
                 
-                <p class="text-muted small mb-4">اكتشف أفضل العروض في قسم {{ category.name }}</p>
+                <p class="text-muted small mb-4">اكتشف أحدث المنتجات والماركات العالمية في هذا القسم</p>
                 
                 <div class="mt-auto">
                     <a href="{% url 'list' %}?category_id={{ category.id }}" class="btn btn-primary btn-custom w-100">
-                        تصفح الآن
+                        تصفح المنتجات <i class="fas fa-chevron-left ms-2 small"></i>
                     </a>
                 </div>
             </div>

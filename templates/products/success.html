@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="p-5 bg-white shadow rounded-4">
+        <h1 class="display-4 text-success fw-bold">شكراً لثقتك!</h1>
+        <p class="lead text-muted mt-3">تم استلام طلبك بنجاح، سنقوم بالتواصل معك قريباً.</p>
+        <a href="{% url 'list' %}" class="btn btn-primary rounded-pill px-5 py-2 mt-4">العودة للمتجر</a>
+    </div>
+</div>
+{% endblock %}

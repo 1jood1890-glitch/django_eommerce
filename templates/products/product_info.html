@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <a href="{% url 'list' %}" class="btn btn-outline-secondary mb-4">
+    <a href="{% url 'list' %}" class="btn btn-outline-secondary mb-4 rounded-pill">
         <i class="fas fa-arrow-right"></i> العودة للمنتجات
     </a>
 
@@ -30,32 +30,32 @@
             <hr class="opacity-10">
 
             <div class="product-description mb-4">
-                <h5 class="fw-bold mb-3"><i class="fas fa-align-right me-2 text-primary"></i> وصف المنتج</h5>
-                <p class="text-muted lh-lg fs-5">
+                <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-info-circle me-2"></i> وصف المنتج</h5>
+                <div class="text-muted lh-lg fs-5">
                     {{ product.details.description|linebreaks }}
-                </p>
+                </div>
             </div>
 
             <div class="row g-3 mb-4">
-    <div class="col-6">
-        <div class="p-3 border rounded-3 bg-light shadow-sm text-center">
-            <small class="text-muted d-block mb-1">الماركة</small>
-            <strong class="text-dark">{{ product.details.brand }}</strong>
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="p-3 border rounded-3 bg-light shadow-sm text-center">
-            <small class="text-muted d-block mb-1">الكمية المتوفرة</small>
-            <strong class="text-dark">{{ product.details.stock }} قطعة</strong>
-        </div>
-    </div>
-</div>
+                <div class="col-6">
+                    <div class="p-3 border-0 rounded-4 bg-white shadow-sm text-center">
+                        <small class="text-muted d-block mb-1"><i class="fas fa-tag"></i> الماركة</small>
+                        <strong class="text-dark fs-5">{{ product.details.brand }}</strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 border-0 rounded-4 bg-white shadow-sm text-center">
+                        <small class="text-muted d-block mb-1"><i class="fas fa-boxes"></i> الكمية المتوفرة</small>
+                        <strong class="text-dark fs-5">{{ product.details.stock }} قطعة</strong>
+                    </div>
+                </div>
+            </div>
 
-            <div class="d-grid gap-2">
-                <a href="{% url 'add_to_cart' %}" class="btn btn-primary btn-lg py-3 rounded-3 fw-bold shadow">
+            <div class="d-grid gap-3">
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-lg py-3 rounded-4 fw-bold shadow">
                     <i class="fas fa-shopping-cart me-2"></i> إضافة إلى السلة
                 </a>
-                <button class="btn btn-outline-danger btn-lg py-3 rounded-3 shadow-sm">
+                <button class="btn btn-outline-danger btn-lg py-3 rounded-4 shadow-sm border-0 bg-white">
                     <i class="fas fa-heart me-2"></i> إضافة للمفضلة
                 </button>
             </div>

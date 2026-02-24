@@ -6,8 +6,8 @@
 <style>
     /* هيدر الصفحة بتدرج لوني احترافي */
     .product-header {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
+        background: linear-gradient(135deg, #480162 0%, #dca3f1 100%);
+        color: rgb(241, 223, 246);
         padding: 60px 0;
         border-radius: 0 0 50px 50px;
         margin-bottom: 40px;
@@ -28,7 +28,7 @@
     }
 
     .price-tag {
-        color: #11998e;
+        color: #501b66;
         font-weight: 800;
         font-size: 1.25rem;
     }
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 text-end" dir="rtl">
         {% for product in prod %}
         <div class="col-md-4 col-lg-3">
             <div class="card product-card shadow-sm h-100 overflow-hidden">
@@ -81,18 +81,18 @@
 
                 <div class="card-body text-center d-flex flex-column">
                     <h5 class="card-title fw-bold text-dark mb-2">{{ product.name }}</h5>
-                    <p class="text-muted small mb-3">{{ product.details|truncatechars:40 }}</p>
+                    <p class="text-muted small mb-3">{{ product.details.description|truncatechars:40|default:"لا يوجد وصف متوفر" }}</p>
                     
                     <div class="mt-auto mb-3">
-                        <span class="price-tag">{{ product.price|floatformat:2 }} ر.س</span>
+                        <span class="price-tag text-success">{{ product.price|floatformat:2 }} ر.س</span>
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <a class="btn btn-outline-success btn-action w-100 py-2" href="{% url 'details' product.id %}">
+                        <a class="btn btn-outline-primary btn-action w-100 py-2" href="{% url 'details' product.id %}">
                             تفاصيل
                         </a>
-                        <a class="btn btn-primary btn-action w-100 py-2 shadow-sm" href="{% url 'add_to_cart' %}">
-                            السلة
+                        <a class="btn btn-primary btn-action w-100 py-2 shadow-sm" href="{% url 'add_to_cart' product.id %}">
+                             السلة
                         </a>
                     </div>
                 </div>

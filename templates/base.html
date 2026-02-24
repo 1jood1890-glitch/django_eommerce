@@ -1,76 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="ar" dir="rtl"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <title>E-commerce - مشروع التجارة الالكترونية</title>
+    
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
-    <title>التجارة الالكترونية</title>
-   
+    
+    <title>{% block title %}التجارة الالكترونية{% endblock %}</title>
+
+    <style>
+        /* خط عربي وتنسيقات بسيطة */
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar-brand { font-size: 1.5rem; }
+        .nav-link:hover { color: #0d6efd !important; }
+        main { flex: 1; } /* لجعل الفوتر دائماً في الأسفل */
+    </style>
 </head>
 <body>
     
-      <header>
+    <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
-                <i class="bi bi-briefcase-fill"></i>  التجارة الالكترونية
-            </a>
+            <div class="container">
+                <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
+                    <i class="bi bi-shop"></i> التجارة الالكترونية
+                </a>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link px-3 active" href="/">الرئيسية</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="#">من نحن</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3" href="#">اتصل بنا</a>
-                        {{request.session.phone}}
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center ">
-                  <a href="#" class="text-dark position-relative ms-3">
-                    <i class="bi bi-cart3"></i>
-                    <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge bg-danger">
-                      {{request.session.cart_count}}
-                    </span>
-                  </a>
-                </div>
-                <div class="ms-lg-3 mt-3 mt-lg-0">
-                    <a href="#" class="btn btn-primary btn-sm rounded-pill px-4">تسجيل الدخول</a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 active" href="/">الرئيسية</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="{% url 'list' %}">المنتجات</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#">من نحن</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#">اتصل بنا</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center me-lg-3">
+                        <a href="{% url 'cart_view' %}" class="text-dark position-relative p-2">
+                            <i class="bi bi-cart3 fs-4"></i>
+                            {% if request.session.cart_count %}
+                            <span id="cart-counter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">
+                                {{ request.session.cart_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
+
+                    <div class="ms-lg-3 mt-3 mt-lg-0">
+    {% if user.is_authenticated %}
+        <span class="ms-2 fw-bold text-primary">أهلاً، {{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">خروج</a>
+    {% else %}
+        <a href="{% url 'login' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">دخول</a>
+    {% endif %}
+</div>
                 </div>
             </div>
-        </div>
-    </nav>
-      </header>
+        </nav>
+    </header>
 
-
-      <main>
-        {% block content %}
-          
-        {% endblock %}
-      </main>
-
-
-       <footer class="bg-white border-top py-3 mt-auto">
+    <main>
         <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-white border-top py-4 mt-5">
+        <div class="container text-center text-md-start">
             <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <small class="text-muted">© 2026 جميع الحقوق محفوظة</small>
+                <div class="col-md-6">
+                    <small class="text-muted">© 2026 جميع الحقوق محفوظة لمتجرنا</small>
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="text-muted small text-decoration-none">الدعم الفني</a>
+                <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                    <a href="#" class="text-muted small text-decoration-none me-3">الدعم الفني</a>
+                    <a href="#" class="text-muted small text-decoration-none me-lg-5">سياسة الخصوصية</a>
                 </div>
             </div>
         </div>

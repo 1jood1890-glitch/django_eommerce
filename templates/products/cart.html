@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 text-end" dir="rtl">
+    <h2 class="fw-bold mb-4 border-bottom pb-3"> <i class="bi bi-cart-check"></i> سلة المشتريات</h2>
+    
+    {% if cart_items %}
+        <div class="table-responsive bg-white shadow-sm rounded-4 p-4">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="min-width: 250px;">المنتج</th>
+                        <th class="text-center">الكمية</th>
+                        <th class="text-center">السعر</th>
+                        <th class="text-center">الإجمالي</th>
+                        <th class="text-center">إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ item.product.image_url }}" width="70" height="70" class="rounded shadow-sm ms-3" style="object-fit: cover;">
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ item.product.name }}</h6>
+                                    <small class="text-muted">{{ item.product.details.brand }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center" style="width: 150px;">
+                            <div class="input-group input-group-sm justify-content-center">
+                                <a href="{% url 'add_to_cart' item.product.id %}?action=minus" class="btn btn-outline-secondary">-</a>
+                                <input type="text" class="form-control text-center bg-light" value="{{ item.quantity }}" readonly style="max-width: 45px;">
+                                <a href="{% url 'add_to_cart' item.product.id %}" class="btn btn-outline-secondary">+</a>
+                            </div>
+                        </td>
+                        <td class="text-center text-muted">{{ item.product.price|floatformat:2 }} ر.س</td>
+                        <td class="text-center fw-bold text-primary">{{ item.total|floatformat:2 }} ر.س</td>
+                        <td class="text-center">
+                            <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-sm btn-outline-danger rounded-pill">
+                                <i class="bi bi-trash"></i> حذف
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="d-flex justify-content-between align-items-center mt-5 flex-wrap gap-3">
+                <div>
+                    <a href="{% url 'list' %}" class="btn btn-outline-dark px-4 rounded-3 shadow-sm me-2">
+                         متابعة التسوق
+                    </a>
+                    
+                    <a href="{% url 'clear_cart' %}" class="btn btn-outline-danger px-4 rounded-3 shadow-sm" 
+                       onclick="return confirm('هل أنت متأكد من رغبتك في حذف جميع المنتجات من السلة؟')">
+                        <i class="bi bi-trash-fill"></i> تفريغ السلة
+                    </a>
+                </div>
+
+                <div class="text-start">
+                    <h5 class="text-muted mb-1">المجموع النهائي:</h5>
+                    <h3 class="fw-bold text-success">{{ total_price|floatformat:2 }} ر.س</h3>
+                    <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg px-5 mt-2 shadow rounded-3 fw-bold">
+                        إتمام الطلب <i class="bi bi-arrow-left ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border">
+            <i class="bi bi-cart-x display-1 text-muted opacity-50"></i>
+            <h3 class="mt-3 text-muted">سلتك فارغة حالياً</h3>
+            <p class="text-muted mb-4">أضف بعض المنتجات لتبدأ التسوق معنا!</p>
+            <a href="{% url 'list' %}" class="btn btn-primary mt-3 px-5 py-2 rounded-pill shadow">ابدأ التسوق</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
