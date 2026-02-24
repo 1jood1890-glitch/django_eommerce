@@ -6,6 +6,7 @@ from django.urls import path, include
 from category import views as cat
 from products import views as prod
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', cat.index, name='home'),
@@ -20,4 +21,5 @@ urlpatterns = [
     path('register/', prod.auth_register, name='register'),
     path('logout/', prod.auth_logout, name='logout'),
     path('checkout/', prod.checkout_view, name='checkout'),
+    path('contact/',prod.contact, name='contact'),
 ]

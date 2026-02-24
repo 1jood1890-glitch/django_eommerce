@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, LoginForm
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ContactForm
 
 # دالة عرض قائمة المنتجات مع الفلترة والبحث (كما هي)
 def list(request):
@@ -130,7 +133,7 @@ def auth_login(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            # يوجه العميل لصفحة الشيك أوت إذا كان قادماً منها بفضل رابط 'next'
+            
             return redirect(request.GET.get('next', 'list'))
     else:
         form = LoginForm()
@@ -140,25 +143,25 @@ def auth_logout(request):
     logout(request)
     return redirect('list')
 
-# --- دالة إتمام الطلب (النسخة المدمجة والمصلحة) ---
+
 
 @login_required(login_url='login')
 def checkout_view(request):
     cart = request.session.get('cart', {})
     
-    # 1. إذا كانت السلة فارغة، رجعه لصفحة السلة
+    
     if not cart:
         return redirect('cart_view')
     
-    # 2. منطق استقبال الطلب عند الضغط على "تأكيد" (POST)
+    
     if request.method == 'POST':
-        # هنا مستقبلاً يتم حفظ بيانات العميل في قاعدة البيانات
-        # حالياً: سنقوم بتفريغ السلة وتوجيه المستخدم لصفحة النجاح
+        
+        
         request.session['cart'] = {}
         request.session['cart_count'] = 0
         return render(request, 'products/success.html')
 
-    # 3. عرض بيانات السلة في صفحة الشيك أوت (GET)
+    
     cart_items = []
     total_price = 0
     for product_id, quantity in cart.items():
@@ -176,3 +179,25 @@ def checkout_view(request):
         'total_price': total_price
     }
     return render(request, 'products/checkout.html', context)
+
+
+
+def contact(request):
+    if request.method == 'POST':
+        # استقبال البيانات من الفورم
+        form = ContactForm(request.POST)
+        
+        if form.is_valid():
+            
+            # ملاحظة: السطر أدناه هو المطلوب في (واجب رقم 11)
+            
+            form.save() 
+            
+            messages.success(request, 'تم إرسال رسالتك بنجاح! تم حفظ بياناتك في قاعدة البيانات.')
+            
+            return redirect('contact')
+    else:
+        form = ContactForm()
+    
+    return render(request, 'contact.html', {'form': form})
+
