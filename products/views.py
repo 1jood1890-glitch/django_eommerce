@@ -7,8 +7,21 @@ from .forms import RegisterForm, LoginForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ContactForm
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import product 
+from .forms import ContactForm
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import product, Order, Complaint 
+from .forms import ContactForm
 
-# دالة عرض قائمة المنتجات مع الفلترة والبحث (كما هي)
+
+
+
 def list(request):
   
     cat_id = request.GET.get("category_id")
@@ -35,7 +48,7 @@ def list(request):
     }
     return render(request, 'products/list.html', context)
 
-# دالة عرض تفاصيل منتج معين (كما هي)
+
 def product_details(request, pk):
  
     single_product = get_object_or_404(product, id=pk)
@@ -45,25 +58,25 @@ def product_details(request, pk):
     }
     return render(request, "products/product_info.html", context)
 
-# --- الدوال المعدلة لإدارة السلة والكميات ---
+
 
 def add_to_cart(request, pk):
-    # جلب السلة الحالية
+    
     cart = request.session.get('cart', {})
     product_id = str(pk)
     
-    # جلب نوع العملية (زيادة أو نقصان) من الرابط
+    
     action = request.GET.get('action') 
 
     if product_id in cart:
         if action == 'minus':
-            # تقليل الكمية
+
             cart[product_id] -= 1
-            # حذف المنتج إذا وصلت الكمية لصفر
+            
             if cart[product_id] < 1:
                 del cart[product_id]
         else:
-            # زيادة الكمية (الحالة الافتراضية)
+            
             cart[product_id] += 1
     else:
         
@@ -114,7 +127,7 @@ def clear_cart(request):
         request.session['cart_count'] = 0
     return redirect('cart_view')
 
-# --- دوال المصادقة (الحسابات) ---
+
 
 def auth_register(request):
     if request.method == 'POST':
@@ -145,59 +158,92 @@ def auth_logout(request):
 
 
 
-@login_required(login_url='login')
-def checkout_view(request):
-    cart = request.session.get('cart', {})
-    
-    
-    if not cart:
-        return redirect('cart_view')
-    
-    
-    if request.method == 'POST':
-        
-        
-        request.session['cart'] = {}
-        request.session['cart_count'] = 0
-        return render(request, 'products/success.html')
-
-    
-    cart_items = []
-    total_price = 0
-    for product_id, quantity in cart.items():
-        item = get_object_or_404(product, id=product_id)
-        item_total = item.price * quantity
-        total_price += item_total
-        cart_items.append({
-            'product': item,
-            'quantity': quantity,
-            'total': item_total
-        })
-        
-    context = {
-        'cart_items': cart_items,
-        'total_price': total_price
-    }
-    return render(request, 'products/checkout.html', context)
-
-
-
 def contact(request):
     if request.method == 'POST':
-        # استقبال البيانات من الفورم
         form = ContactForm(request.POST)
-        
         if form.is_valid():
+            # تحسين: إذا كان المستخدم مسجل، نحفظ في Complaint فقط ليظهر في بروفايله
+            if request.user.is_authenticated:
+                Complaint.objects.create(
+                    user=request.user,
+                    message=form.cleaned_data.get('message'),
+                    is_resolved=False
+                )
+            else:
+                # إذا كان زائراً (غير مسجل)، نحفظ في Contact للأدمن فقط
+                form.save() 
             
-            # ملاحظة: السطر أدناه هو المطلوب في (واجب رقم 11)
-            
-            form.save() 
-            
-            messages.success(request, 'تم إرسال رسالتك بنجاح! تم حفظ بياناتك في قاعدة البيانات.')
-            
+            messages.success(request, 'تم استلام رسالتك وجاري معالجة الطلب.')
             return redirect('contact')
     else:
         form = ContactForm()
-    
     return render(request, 'contact.html', {'form': form})
+
+@login_required(login_url='login')
+def profile_view(request):
+    # تحسين: جلب الشكاوى والطلبات مرتبة من الأحدث (الأحدث فوق)
+    user_complaints = Complaint.objects.filter(user=request.user).order_by('-created_at')
+    user_orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    return render(request, 'profile.html', {
+        'user': request.user,
+        'complaints': user_complaints,
+        'orders': user_orders,         
+    })
+
+@login_required(login_url='login')
+def checkout_view(request):
+    cart = request.session.get('cart', {})
+   
+    if not cart:
+        return redirect('list') 
+
+    cart_items = []
+    total_price = 0
+    
+    for product_id, quantity in cart.items():
+        try:
+            item_obj = product.objects.get(id=product_id) 
+            item_total = item_obj.price * quantity
+            total_price += item_total
+            cart_items.append({
+                'product': item_obj,
+                'quantity': quantity,
+                'total': item_total
+            })
+        except product.DoesNotExist:
+            continue
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        customer_name = f"{first_name} {last_name}"
+        
+        # حفظ الطلب في موديل Order ليظهر في البروفايل والأدمن
+        items_summary = ", ".join([f"{item['product'].name} (x{item['quantity']})" for item in cart_items])
+        Order.objects.create(
+            user=request.user,
+            customer_name=customer_name,
+            total_price=total_price,
+            items_summary=items_summary
+        )
+        
+        context = {
+            'customer_name': customer_name,
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'company_name': 'متجر سطر الإلكتروني',
+            'tax_number': '300012345600003',
+        }
+        
+        request.session['cart'] = {}
+        request.session['cart_count'] = 0
+        
+        return render(request, 'invoice.html', context)
+
+    return render(request, 'products/checkout.html', {
+        'cart_items': cart_items,
+        'total_price': total_price
+    })
+
 

@@ -1,5 +1,7 @@
 from django.db import models
 from category.models import Category
+from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -34,3 +36,20 @@ class Contact(models.Model):
 
     def __str__(self):
         return f"رسالة من: {self.name}"
+    
+
+# جدول لحفظ الطلبات السابقة (لعرضها في البروفايل)
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    customer_name = models.CharField(max_length=200)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    items_summary = models.TextField() # ملخص المنتجات
+    created_at = models.DateTimeField(auto_now_add=True)
+
+# جدول للشكاوى ورسائل الدعم
+class Complaint(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    is_resolved = models.BooleanField(default=False) # هل تم الرد؟
+    admin_reply = models.TextField(blank=True, null=True) # رد الإدارة
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -17,9 +17,12 @@ urlpatterns = [
     path('remove_from_cart/<int:pk>/', prod.remove_from_cart, name='remove_from_cart'),
     path('clear_cart/', prod.clear_cart, name='clear_cart'),
     path('accounts/', include('django.contrib.auth.urls')), 
-     path('login/', prod.auth_login, name='login'),
+    path('login/', prod.auth_login, name='login'),
     path('register/', prod.auth_register, name='register'),
     path('logout/', prod.auth_logout, name='logout'),
     path('checkout/', prod.checkout_view, name='checkout'),
-    path('contact/',prod.contact, name='contact'),
+    path('contact/', prod.contact, name='contact'),
+    
+    
+    path('profile/', prod.profile_view, name='profile'),
 ]
