@@ -70,7 +70,7 @@ class ContactFormOld(forms.Form):
 # ملاحظة: الكود أدناه هو المطلوب في (التمرين رقم 11)
 class ContactForm(forms.ModelForm):
     class Meta:
-        model = Contact  # ربط النموذج بالمودل الجديد
+        model = Contact  
         fields = ['name', 'email', 'subject', 'message']
         
         widgets = {
@@ -87,4 +87,3 @@ class ContactForm(forms.ModelForm):
             'subject': 'الموضوع',
             'message': 'الرسالة',
         }
-# ==========================================

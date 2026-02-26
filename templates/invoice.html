@@ -35,13 +35,10 @@
             </tbody>
         </table>
 
-        <div class="row mt-4 align-items-center">
-            <div class="col-md-6">
-                <div class="border p-2 d-inline-block text-center bg-white shadow-sm rounded">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=Seller:{{company_name}}%0ATaxID:{{tax_number}}%0ATotal:{{total_price}}%0ACustomer:{{customer_name}}" alt="QR Code">
-                    <p class="small mb-0 mt-2 text-primary fw-bold">المسح الضريبي </p>
-                </div>
-            </div>
+    <div class="text-center mt-4">
+            <p class="small text-muted">مسح ضوئي للتحقق من الفاتورة</p>
+    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" style="width: 160px;">
+        </div>
             <div class="col-md-6 text-md-end">
                 <div class="pe-3">
                     <h5 class="text-muted mb-1">الإجمالي (شامل الضريبة)</h5>

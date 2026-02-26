@@ -46,6 +46,9 @@ class Order(models.Model):
     items_summary = models.TextField() # ملخص المنتجات
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"طلب رقم {self.id} - {self.customer_name}"
+
 # جدول للشكاوى ورسائل الدعم
 class Complaint(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -53,3 +56,6 @@ class Complaint(models.Model):
     is_resolved = models.BooleanField(default=False) # هل تم الرد؟
     admin_reply = models.TextField(blank=True, null=True) # رد الإدارة
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"شكوى من {self.user.username}: {self.message[:20]}..."

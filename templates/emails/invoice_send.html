@@ -1,0 +1,16 @@
+<div style="direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, sans-serif; border: 2px solid #2c3e50; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto;">
+    <h2 style="color: #27ae60; text-align: center;">شكراً لطلبك من متجر سطر!</h2>
+    <p>مرحباً <strong>{{ customer_name }}</strong>،</p>
+    <p>تم استلام طلبك بنجاح، وإليك تفاصيل الفاتورة:</p>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>رقم الطلب:</strong> #{{ order_id }}</p>
+        <p><strong>تاريخ الطلب:</strong> {{ date }}</p>
+        <hr>
+        <p><strong>المنتجات:</strong><br>{{ items }}</p>
+        <hr>
+        <h3 style="color: #c0392b;">الإجمالي: {{ total }} ر.س</h3>
+    </div>
+    
+    <p style="text-align: center; color: #7f8c8d; font-size: 14px;">نتطلع لخدمتك مرة أخرى قريباً!</p>
+</div>
